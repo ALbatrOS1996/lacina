@@ -1,5 +1,5 @@
 /* Service worker: praca offline (aplikacja, czcionki, zdjęcia) */
-var VERSION = 'e4732d4332';
+var VERSION = '003c6815a8';
 var CORE = 'lacina-core-' + VERSION;
 var IMG = 'lacina-img-v1';
 var FONTS = 'lacina-fonts-v1';
