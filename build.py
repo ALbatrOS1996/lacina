@@ -31,7 +31,7 @@ open(os.path.join(docs, 'index.html'), 'w', encoding='utf-8').write(html)
 ver = hashlib.sha1(html.encode('utf-8')).hexdigest()[:10]
 open(os.path.join(docs, 'sw.js'), 'w', encoding='utf-8').write(r('sw.js').replace('__VERSION__', ver))
 manifest = {
-    'name': 'Łacina dla historyka', 'short_name': 'Łacina', 'lang': 'pl',
+    'name': 'Łacina', 'short_name': 'Łacina', 'lang': 'pl',
     'description': 'Nauka łaciny do czytania źródeł historycznych.',
     'start_url': './', 'scope': './', 'display': 'standalone', 'orientation': 'portrait',
     'background_color': '#f3ede1', 'theme_color': '#a1301f',

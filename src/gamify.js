@@ -11,12 +11,13 @@ LAT.G = (function () {
   /* ---------- Stan ---------- */
   var S = {
     lessons: {}, texts: {}, srs: {}, newDay: { d: 0, n: 0 }, imgs: {}, traps: {}, drills: { ok: 0, all: 0 }, chrono: { ok: 0, all: 0 },
-    settings: { newPerDay: 12, cal: 'auto', theme: '', sound: true, plLabels: true, goal: 50 },
+    settings: { newPerDay: 12, cal: 'auto', theme: '', sound: true, plLabels: true, goal: 30 },
     days: [], xp: 0, xpLog: {}, badges: {}, goalDays: [], abbrOk: 0, partPerfect: 0, perfectLessons: 0, bestCombo: 0, seenIntro: false
   };
   try {
     var raw = localStorage.getItem(KEY);
     if (raw) { var o = JSON.parse(raw); Object.keys(o).forEach(function (k) { if (k === 'settings') Object.keys(o.settings).forEach(function (s) { S.settings[s] = o.settings[s]; }); else S[k] = o[k]; }); }
+    if (!S.xp1) { S.settings.goal = { 50: 30, 100: 50, 150: 100 }[S.settings.goal] || S.settings.goal; S.xp1 = 1; } // od 2026-10: 1 dobra odpowiedź = 1 XP
   } catch (e) { }
   function save() {
     var t = today(); if (S.days.indexOf(t) < 0) { S.days.push(t); S.days = S.days.slice(-500); }
@@ -149,8 +150,8 @@ LAT.G = (function () {
     sound('ok');
     var p = PRAISE[Math.floor(Math.random() * PRAISE.length)];
     toast('<span class="praise">' + p[0] + '</span><small>' + p[1] + (combo >= 3 ? ' · ' + LAT.icon('zap', 14) + ' seria ' + combo : '') + '</small>', 'ok', 1100);
-    if (combo === 5 || combo === 10 || combo === 20) setTimeout(function () { toast(LAT.icon('zap', 22) + '<div><b>Series ' + toRoman(combo) + '!</b><br><small>' + combo + ' poprawnych z rzędu – premia +' + combo + ' XP</small></div>', 'combo', 2200); addXP(combo, null); }, 300);
-    addXP(xp || 5, el);
+    if (combo === 5 || combo === 10 || combo === 20) setTimeout(function () { toast(LAT.icon('zap', 22) + '<div><b>Series ' + toRoman(combo) + '!</b><br><small>' + combo + ' poprawnych z rzędu</small></div>', 'combo', 2200); }, 300);
+    addXP(1, el); // 1 dobra odpowiedź = 1 XP
   }
   function wrong(el) {
     combo = 0; sound('bad');

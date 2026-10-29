@@ -64,7 +64,7 @@
     var main = $('#main');
     main.innerHTML = '';
     VIEWS[v](main, parts.slice(1).map(decodeURIComponent));
-    main.insertAdjacentHTML('beforeend', '<div class="foot">Łacina dla historyka · postęp zapisywany w tej przeglądarce · analizator: ' + INDEX_SIZE.toLocaleString('pl') + ' form</div>');
+    main.insertAdjacentHTML('beforeend', '<div class="foot">Łacina · postęp zapisywany w tej przeglądarce · analizator: ' + INDEX_SIZE.toLocaleString('pl') + ' form</div>');
     G.updateStatus();
     window.scrollTo(0, 0);
   }
@@ -119,7 +119,7 @@
         b.onclick = function () {
           var j = +b.dataset.j, good = j === q.a;
           $$('.opt', qd).forEach(function (x) { x.disabled = true; if (+x.dataset.j === q.a) x.classList.add('right'); });
-          if (!good) { b.classList.add('wrong'); G.wrong(b); } else { score++; xpGot += 5; G.correct(b, 5); }
+          if (!good) { b.classList.add('wrong'); G.wrong(b); } else { score++; xpGot += 1; G.correct(b, 1); }
           var ex = $('.expl', qd); ex.className = 'expl ' + (good ? 'good' : 'badx');
           ex.innerHTML = (good ? '<b class="ok">' + I('check', 16) + ' Dobrze.</b> ' : '<b class="bad">' + I('x', 16) + ' Nie tym razem.</b> ') + (q.e || '');
           LAT.glossify(ex);
@@ -161,7 +161,7 @@
         else if (toks[n] && !sel) { t.classList.add('miss'); ok = false; }
         else if (!toks[n] && sel) { t.classList.add('false'); ok = false; }
       });
-      if (ok) G.correct($('.find-s', el), 6); else G.wrong($('.find-s', el));
+      if (ok) G.correct($('.find-s', el), 1); else G.wrong($('.find-s', el));
       var e = $('.expl', el); e.className = 'expl ' + (ok ? 'good' : 'badx');
       e.innerHTML = (ok ? '<b class="ok">Bezbłędnie.</b> ' : '<b class="bad">Nie całkiem.</b> Zielone – trafione, przerywane – pominięte, przekreślone – zbędne. ') + (ex.e || '');
       LAT.glossify(e);
@@ -215,7 +215,7 @@
           b.onclick = function () {
             var good = right.indexOf(b.dataset.v) >= 0;
             $$('.opt', el).forEach(function (x) { x.disabled = true; if (right.indexOf(x.dataset.v) >= 0) x.classList.add('right'); });
-            if (!good) { b.classList.add('wrong'); G.wrong(b); } else { ok++; G.correct(b, 3); }
+            if (!good) { b.classList.add('wrong'); G.wrong(b); } else { ok++; G.correct(b, 1); }
             fin(good, right);
           };
         });
@@ -235,7 +235,7 @@
             if (x.v === 'dep.' && v['strona'] !== 'pass.') return false;
             return x.t === v['czas'] && x.m === v['tryb'] && (x.v === '' || x.v === 'dep.' || x.v === v['strona']) && x.p === p;
           });
-          if (good) { ok++; G.correct(this, 6); } else G.wrong(this);
+          if (good) { ok++; G.correct(this, 1); } else G.wrong(this);
           this.disabled = true;
           fin(good, LAT.mergeLabels(goodLabels));
         };
@@ -417,7 +417,7 @@
         got += s; done++; xp += x || 0;
         $('#lprog').style.width = (100 * done / total) + '%';
         if (done === total) {
-          var perfect = got === total, bonus = wasDone ? 10 : 25 + (perfect ? 15 : 0);
+          var perfect = got === total, bonus = 0;
           S.lessons[id] = { done: true, score: Math.max(got, (S.lessons[id] && S.lessons[id].score) || 0), total: total };
           if (perfect && !wasDone) S.perfectLessons++;
           save(); G.addXP(bonus, null); renderNav('gramatyka');
@@ -507,7 +507,7 @@
       document.onkeydown = null;
       if (!queue.length) {
         el.innerHTML = '<h1>Sesja zakończona</h1><p class="lead">' + (done ? 'Przerobione karty: ' + done + '.' : 'Na dziś nie ma nic do powtórki – wróć jutro albo zaznacz więcej talii.') + '</p><div class="row"><a class="btn pri" href="#/pulpit">' + I('home', 18) + ' Pulpit</a> <a class="btn" href="#/czytanka">' + I('scroll', 18) + ' Do czytanki</a></div>';
-        if (done >= 5) { G.addXP(10, null); G.celebrate({ icon: 'cards', kicker: 'Memoria bona!', title: 'Sesja powtórek ukończona', stats: [[done, 'kart'], [Math.round(100 * good / done) + '%', 'pamiętane'], ['+' + (xp + 10), 'XP']] }); }
+        if (done >= 5) { G.celebrate({ icon: 'cards', kicker: 'Memoria bona!', title: 'Sesja powtórek ukończona', stats: [[done, 'kart'], [Math.round(100 * good / done) + '%', 'pamiętane'], ['+' + xp, 'XP']] }); }
         renderNav('slownictwo'); return;
       }
       var id = queue[0], e = BYHEAD[id], isNew = !S.srs[id];
@@ -524,7 +524,7 @@
           var g = +b.dataset.g;
           if (isNew) S.newDay.n++;
           srsGrade(id, g); done++;
-          if (g >= 2) { good++; var add = isNew ? 3 : 2; xp += add; G.correct(b, add); } else if (g === 1) { good++; xp += 1; G.addXP(1, b); } else G.wrong(b);
+          if (g >= 2) { good++; var add = 1; xp += add; G.correct(b, add); } else if (g === 1) { good++; xp += 1; G.addXP(1, b); } else G.wrong(b);
           queue.shift();
           if (g === 0) queue.splice(Math.min(queue.length, 3), 0, id);
           setTimeout(show, G.RM ? 0 : 160);
@@ -618,7 +618,7 @@
     quiz($('#qs'), T.q, function (sc, tot, xp) {
       var prev = S.texts[id] || {};
       S.texts[id] = { done: true, score: sc, total: tot, level: level, lookups: level === 3 ? lookups : null, prefLevel: prev.prefLevel || level };
-      var bonus = (wasDone ? 10 : 30) + (level === 3 ? 15 : level === 2 ? 5 : 0);
+      var bonus = 0;
       save(); G.addXP(bonus, null);
       var nx = nextStep();
       G.celebrate({ icon: 'scroll', kicker: sc === tot ? 'Lector egregius!' : 'Lectio peracta!', title: esc(T.title) + ' – przeczytane', sub: level < 3 ? 'Następnym razem spróbuj wyższego poziomu: mniej pomocy to więcej XP.' : 'Czytasz źródło bez pomocy. Tak pracuje historyk.',
@@ -663,7 +663,7 @@
     $$('[data-s]', el).forEach(function (b) { b.onclick = function () { $('#s' + b.dataset.s).classList.toggle('hidden'); LAT.glossify($('#sn')); }; });
     quiz($('#qs'), IM.q, function (sc, tot, xp) {
       S.imgs[id] = 1; save();
-      if (!wasDone) { G.addXP(10, null); G.toast(I('landmark', 22) + '<div><b>Napis odczytany!</b><br><small>+' + (xp + 10) + ' XP · ' + Object.keys(S.imgs).length + ' z ' + LAT.IMAGES.length + ' zdjęć</small></div>', 'badge', 2600); G.sound('done'); G.confetti(60); }
+      if (!wasDone) { G.toast(I('landmark', 22) + '<div><b>Napis odczytany!</b><br><small>+' + xp + ' XP · ' + Object.keys(S.imgs).length + ' z ' + LAT.IMAGES.length + ' zdjęć</small></div>', 'badge', 2600); G.sound('done'); G.confetti(60); }
     });
   }
   function epigraphyView(el) {
@@ -716,7 +716,7 @@
         return { q: 'Do jakiej części dokumentu należy formuła <i class="la">' + esc(f[1]) + '</i>?', o: [f[0]].concat(others), a: 0, e: esc(f[2]) };
       });
       tb.innerHTML = '<div class="card" id="fqz"></div>';
-      quiz($('#fqz'), qs, function (s, t) { var first = !(S.lessons.diplo && S.lessons.diplo.done); S.lessons.diplo = { done: true, score: s, total: t }; save(); if (first) { G.addXP(15, null); G.celebrate({ icon: 'stamp', kicker: 'Bene!', title: 'Quiz formuł ukończony', stats: [[s + '/' + t, 'wynik']] }); } });
+      quiz($('#fqz'), qs, function (s, t) { var first = !(S.lessons.diplo && S.lessons.diplo.done); S.lessons.diplo = { done: true, score: s, total: t }; save(); if (first) { G.celebrate({ icon: 'stamp', kicker: 'Bene!', title: 'Quiz formuł ukończony', stats: [[s + '/' + t, 'wynik']] }); } });
     }
   };
   function formulaFinder(text, out) {
@@ -751,8 +751,8 @@
         if (s.value === good) { ok++; fb.innerHTML = '<span class="ok">' + I('check', 18) + '</span>'; } else fb.innerHTML = '<span class="bad">' + I('x', 18) + ' ' + good + '</span>';
       });
       $('#psc').textContent = ok + ' / ' + T.parts.length;
-      G.addXP(ok * 2, this);
-      if (ok === T.parts.length) { S.partPerfect++; save(); G.addXP(25, null); G.celebrate({ icon: 'stamp', kicker: 'Notarius!', title: 'Bezbłędny podział dokumentu', sub: 'Rozpoznajesz wszystkie 13 części – jak średniowieczny kancelista.', stats: [['13/13', 'części'], ['+' + (ok * 2 + 25), 'XP']], big: true }); }
+      G.addXP(ok, this);
+      if (ok === T.parts.length) { S.partPerfect++; save(); G.celebrate({ icon: 'stamp', kicker: 'Notarius!', title: 'Bezbłędny podział dokumentu', sub: 'Rozpoznajesz wszystkie 13 części – jak średniowieczny kancelista.', stats: [['13/13', 'części'], ['+' + (ok * 2 + 25), 'XP']], big: true }); }
     };
   }
 
@@ -849,7 +849,7 @@
       $('#am').value = String(F.m);
       $('#ac').onclick = function () {
         var good = +$('#ad').value === R.d && +$('#am').value === R.m;
-        S.chrono.all++; if (good) { S.chrono.ok++; streakC++; G.correct(this, 8); } else { streakC = 0; G.wrong(this); } save();
+        S.chrono.all++; if (good) { S.chrono.ok++; streakC++; G.correct(this, 1); } else { streakC = 0; G.wrong(this); } save();
         var e = $('#ae'); e.className = 'expl ' + (good ? 'good' : 'badx');
         e.innerHTML = (good ? '<b class="ok">Dobrze!</b> ' : '<b class="bad">Nie.</b> ') + 'Rozwiązanie: <b>' + esc(R.txt) + '</b>.<br>Krok po kroku: ' + esc(nm.pl) + ' w ' + y + ' r. wypadło: ' + esc(F.txt) + '. ' +
           ({ post: 'Szukamy pierwszego dnia „' + CH.DNI[wd] + '” po święcie.', ante: 'Szukamy ostatniego dnia „' + CH.DNI[wd] + '” przed świętem.', vig: 'Wigilia to dzień przed świętem.', cras: 'In crastino to następny dzień.', oct: 'Oktawa to 7 dni po święcie (ósmy dzień, licząc samo święto).', in: 'Data samego święta.' })[rel] +
@@ -894,7 +894,7 @@
         var chk = function () {
           if ($('#aok').disabled) return; $('#aok').disabled = true;
           var v = LAT.norm($('#ain').value), good = a[1].split(/[\/(),=]/).some(function (x) { var n = LAT.norm(x); return n && (n === v || n.replace(/^-/, '') === v); });
-          if (good) { ok++; S.abbrOk++; G.correct($('.drill-form', tb), 4); } else G.wrong($('.drill-form', tb));
+          if (good) { ok++; S.abbrOk++; G.correct($('.drill-form', tb), 1); } else G.wrong($('.drill-form', tb));
           $('#aex').className = 'expl ' + (good ? 'good' : 'badx'); $('#aex').innerHTML = (good ? '<b class="ok">Dobrze.</b> ' : '<b class="bad">Nie.</b> ') + '<b class="la">' + esc(a[1]) + '</b> – ' + esc(a[3] || ({ s: 'suspensja', k: 'kontrakcja', z: 'znak specjalny' })[a[2]]) + '<div class="row" style="justify-content:center;margin-top:8px"><button class="btn pri" id="anx">Dalej ' + I('right', 18) + '</button></div>';
           $('#anx').onclick = function () { i++; nx(); }; $('#anx').focus();
         };
@@ -984,7 +984,7 @@
           if (bad && sel) s.classList.add('hit'); else if (bad) { s.classList.add('miss'); ok = false; } else if (sel) { s.classList.add('false'); ok = false; }
         });
         var wasSolved = S.traps[key]; S.traps[key] = ok ? 1 : (S.traps[key] || 0); save();
-        if (ok) G.correct(d, wasSolved ? 2 : 6); else G.wrong(d);
+        if (ok) G.correct(d, 1); else G.wrong(d);
         var n = Object.keys(S.traps).filter(function (k) { return S.traps[k]; }).length; $('#tcount').textContent = n; $('#tprog').style.width = (100 * n / LAT.TRAPS.length) + '%';
         var e = $('.expl', d); e.className = 'expl ' + (ok ? 'good' : 'badx'); e.innerHTML = (ok ? '<b class="ok">Trafnie.</b> ' : '<b class="bad">Nie całkiem.</b> ') + 'Poprawnie: <b>' + esc(t.ok) + '</b><br>' + t.e;
       };
@@ -1025,7 +1025,7 @@
       '<div class="card"><h3>Nauka</h3>' +
       sw('pll', 'Etykiety form po polsku', 'Np. „ablatyw, l. mn.” zamiast „abl. lm.” (łaciński skrót zostaje drobnym drukiem).', S.settings.plLabels) +
       sw('snd', 'Dźwięki nagród', 'Krótkie tony po poprawnej odpowiedzi i ukończeniu lekcji.', S.settings.sound) +
-      '<div class="switch"><div><b>Cel dzienny</b><div class="small muted">Ile XP chcesz zdobywać dziennie (ok. 10 XP = 2 minuty).</div></div><select id="goal"><option value="30">30 XP – lekko</option><option value="50">50 XP – regularnie</option><option value="100">100 XP – intensywnie</option><option value="150">150 XP – maraton</option></select></div>' +
+      '<div class="switch"><div><b>Cel dzienny</b><div class="small muted">Ile XP chcesz zdobywać dziennie (1 dobra odpowiedź = 1 XP).</div></div><select id="goal"><option value="15">15 XP – lekko</option><option value="30">30 XP – regularnie</option><option value="50">50 XP – intensywnie</option><option value="100">100 XP – maraton</option></select></div>' +
       '<div class="switch"><div><b>Nowe słowa dziennie</b><div class="small muted">Limit nowych fiszek na dzień.</div></div><input type="number" inputmode="numeric" id="npd" value="' + S.settings.newPerDay + '" min="0" max="100" style="width:90px"></div>' +
       '<div class="switch"><div><b>Kalendarz domyślny</b><div class="small muted">Dla kalkulatora dat.</div></div>' + calSelect('dcal') + '</div>' +
       '<div class="switch"><div><b>Motyw</b><div class="small muted">Jasny, ciemny lub zgodny z systemem.</div></div><select id="thm"><option value="">systemowy</option><option value="light">jasny</option><option value="dark">ciemny</option></select></div></div>' +
