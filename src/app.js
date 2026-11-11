@@ -37,7 +37,8 @@
     ['', [['slowniczek', 'Słowniczek terminów', 'help'], ['ustawienia', 'Ustawienia', 'sliders']]]
   ];
   var BOTTOM = [['pulpit', 'Start', 'home'], ['plan', 'Ścieżka', 'route'], ['czytanka', 'Teksty', 'scroll'], ['slownictwo', 'Słówka', 'cards']];
-  function dueCount() { var t = today(), n = 0; Object.keys(S.srs).forEach(function (k) { if (S.srs[k].due <= t) n++; }); return n; }
+  var MAXREV = 50; // maks. 50 powtórek na raz
+  function dueCount() { var t = today(), n = 0; Object.keys(S.srs).forEach(function (k) { if (S.srs[k].due <= t) n++; }); return Math.min(n, MAXREV); }
   function renderNav(cur) {
     var due = dueCount(), h = '';
     NAV.forEach(function (g) {
@@ -456,7 +457,7 @@
     if (args[0] === 'sesja') return vocabSession(el);
     if (args[0] === 'lista') return vocabList(el);
     var t = today();
-    var due = Object.keys(S.srs).filter(function (k) { return S.srs[k].due <= t; }).length;
+    var due = Math.min(MAXREV, Object.keys(S.srs).filter(function (k) { return S.srs[k].due <= t; }).length);
     var deck = LEX.filter(function (e) { return e.fields.some(function (f) { return vocabFields.indexOf(f) >= 0; }); });
     var fresh = deck.filter(function (e) { return !S.srs[e.head]; }).length;
     if (S.newDay.d !== t) S.newDay = { d: t, n: 0 };
@@ -502,7 +503,7 @@
     var dueIds = Object.keys(S.srs).filter(function (k) { return S.srs[k].due <= t && BYHEAD[k]; });
     var newLeft = Math.max(0, S.settings.newPerDay - S.newDay.n);
     var fresh = LEX.filter(function (e) { return !S.srs[e.head] && e.fields.some(function (f) { return vocabFields.indexOf(f) >= 0; }); }).slice(0, newLeft).map(function (e) { return e.head; });
-    var queue = shuffle(dueIds).concat(fresh), done = 0, total = queue.length, xp = 0, good = 0;
+    var queue = shuffle(dueIds).slice(0, MAXREV).concat(fresh), done = 0, total = queue.length, xp = 0, good = 0;
     function show() {
       document.onkeydown = null;
       if (!queue.length) {
